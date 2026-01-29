@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OHBUMP - Top.gg Style Server Discovery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header>
+    <div class="header-row">
+      <h1 class="navbar-title">OHBUMP</h1>
+      <button id="menu-btn" onclick="toggleMenu()">⋮</button>
+    </div>
+    <nav id="main-nav" class="nav-tabs">
+      <button onclick="showTab('discover')" id="btn-discover" class="active">Server List</button>
+      <button onclick="showTab('addserver')" id="btn-add">Add Server</button>
+      <button onclick="showTab('feedback')" id="btn-feedback">Feedback/Report & Support</button>
+      <button onclick="showTab('admin')" id="btn-admin" style="display:none;">Admin</button>
+      <span id="user-info" style="display:none;">
+        Welcome, <span id="username"></span>
+      </span>
+    </nav>
+  </header>
+  <main>
+    <!-- SERVER DISCOVERY -->
+    <section id="tab-discover">
+      <div class="page-title">Server Discovery</div>
+      <div id="server-grid" class="server-grid">
+        <div class="loading-text">Loading servers...</div>
+      </div>
+    </section>
+    <!-- ADD SERVER REQUEST -->
+    <section id="tab-addserver" style="display:none;">
+      <div class="page-title">Add Server (Bot must join first)</div>
+      <form onsubmit="requestAddServer(event)" id="add-server-form">
+        <label for="add-server-select">Pick your server:</label>
+        <select id="add-server-select" required></select>
+        <input type="url" id="add-server-invite" required placeholder="Discord Invite Link"/>
+        <button type="submit" class="action-btn">Request Add</button>
+        <div id="add-server-status" class="form-status"></div>
+      </form>
+    </section>
+    <!-- FEEDBACK/REPORT -->
+    <section id="tab-feedback" style="display:none;">
+      <div class="page-title">Feedback / Support / Report</div>
+      <form id="feedback-form" onsubmit="sendFeedback(event)">
+        <input type="text" id="fb-user" maxlength="40" required placeholder="Your Discord tag or name"/>
+        <select id="fb-type">
+          <option value="feedback">Feedback</option>
+          <option value="support">Support</option>
+          <option value="report">Report</option>
+        </select>
+        <textarea id="fb-message" maxlength="500" rows="4" placeholder="Type your message here..." required></textarea>
+        <button class="action-btn" type="submit">Send</button>
+        <div id="feedback-status" class="form-status"></div>
+      </form>
+    </section>
+    <!-- ADMIN PAGE -->
+    <section id="tab-admin" style="display:none;">
+      <div class="page-title">Admin - Review Requests & Force Logout</div>
+      <div id="admin-request-list"></div>
+      <h3>Active Users</h3>
+      <div id="admin-session-list"></div>
+    </section>
+    <!-- TOS & PRIVACY -->
+    <section id="tab-tos" style="display:none;">
+      <div class="page-title">Terms of Service</div>
+      <p>
+        By using OHBUMP and related services, you agree to not engage in any illegal activities or violate Discord's Terms of Service. <br>
+        Use responsibly; spamming or abuse may result in a ban without notice.<br>
+        These terms may be updated without notice. Please check this page regularly.
+      </p>
+    </section>
+    <section id="tab-privacy" style="display:none;">
+      <div class="page-title">Privacy Policy</div>
+      <p>
+        OHBUMP collects only server IDs and minimal data for bot function. We do not sell or share your data. <br>
+        Your Discord ID is not publicly visible. <br>
+        By using OHBUMP, you accept this policy. Changes will be posted here.
+      </p>
+    </section>
+  </main>
+  <footer>
+    <div class="footer-main">
+      <div class="footer-left">
+        <span class="brand-footer">OHBUMP</span> &copy; 2026 — Discovery Platform
+      </div>
+      <div class="footer-right">
+        <a onclick="showTab('tos')" href="#">Terms</a> · 
+        <a onclick="showTab('privacy')" href="#">Privacy</a>
+        <a onclick="showTab('feedback')" href="#">Contact</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    // ======= NAV & TAB =======
+    function toggleMenu() { document.getElementById('main-nav').classList.toggle('show'); }
+    window.onclick = function(e) {
+      if(!e.target.matches('#menu-btn')) document.getElementById('main-nav').classList.remove('show');
+    };
+    function showTab(tab){
+      ['discover','addserver','admin','feedback','tos','privacy'].forEach(t=>{
+        let s=document.getElementById('tab-'+t), b=document.getElementById('btn-'+t);
+        if(s) s.style.display=(t===tab?'':'none'); if(b) b.classList[(t===tab?'add':'remove')]('active');
+      });
+      document.getElementById('main-nav').classList.remove('show');
+      if(tab==='discover') fetchServers();
+      if(tab==='admin') fetchAdmin(); 
+      if(tab==='addserver') refreshAddServerList();
+    }
+
+    // ======= SESSION PERSISTENCE =======
+    function saveUserLocal(data){ localStorage.setItem('ohbump_user', JSON.stringify(data)); }
+    function loadUserLocal(){ try{ return JSON.parse(localStorage.getItem('ohbump_user')); }catch{ return null; } }
+
+    let user = null, userRole = '', userGuilds = [];
+    function updateLogin(){
+      fetch("/api/auth/me").then(r=>r.json()).then(data=>{
+        user = data.loggedIn ? data.user : null;
+        userRole = data.role||'';
+        userGuilds = data.guilds||[];
+        if(data.loggedIn){ saveUserLocal(data); }
+        // auto-login pada page buka ulang, kecuali admin force-logout di backend
+        if(!data.loggedIn && loadUserLocal()){
+          // show a message if admin force logout
+          localStorage.removeItem('ohbump_user');
+        }
+        document.getElementById("user-info").style.display = data.loggedIn?"":"none";
+        if(data.loggedIn) document.getElementById("username").textContent = data.user.username+"#"+data.user.discriminator;
+        document.getElementById("btn-admin").style.display = userRole==="admin"?"":"none";
+        refreshAddServerList(); fetchServers();
+      });
+    }
+    // Try load local session (if page opened)
+    window.onload=function(){ 
+      if(loadUserLocal()) updateLogin();
+      else updateLogin(); // will fetch fresh anyway
+      showTab('discover');
+      setInterval(afterServerGridRendered,1500);
+    }
+
+    function isLoggedIn(){return !!user;}
+    function isAdmin(){return userRole==="admin";}
+    // logout by admin only (user button logout hidden)
+    function adminForceLogout(userId){
+      fetch("/api/admin/force-logout",{method:'POST',headers:{"Content-Type":"application/json"},body:JSON.stringify({userId})})
+      .then(()=>fetchAdmin());
+    }
+
+    // ======= SERVER LIST/DISCOVERY & COMMENT/RATE =======
+    function fetchServers(){
+      fetch("/api/servers").then(r=>r.json()).then(list=>{
+        let html='';
+        if(list.length===0) html='<div class="loading-text">No server listed yet.</div>';
+        else html=list.map(renderServerCard).join('');
+        document.getElementById("server-grid").innerHTML=html;
+      });
+    }
+    function renderServerCard(s){
+      let id = s.id;
+      return `<div class="server-card">
+        <div class="server-header">
+          <div class="server-name">${escapeHtml(s.name)}</div>
+          ${s.badge ? `<span class="server-badge">Admin</span>` : ''}
+        </div>
+        <div class="server-by">Added by: <span>${escapeHtml(s.by)}</span></div>
+        <a href="${escapeHtml(s.invite)}" class="join-btn" target="_blank">Join</a>
+        <div class="rate-row">${rateAvgHtml(id)}</div>
+        <div class="comment-section" id="comments-${id}"><div class="comments-loading">Loading comments...</div></div>
+        ${isLoggedIn()?commentFormHtml(id):''}
+      </div>`;
+    }
+    function escapeHtml(s){return s.replace(/[<>&"]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+    function rateAvgHtml(id){ return `<span class="rating-avg" id="rating-avg-${id}"></span>`; }
+    function getComments(id){
+      fetch(`/api/servers/${id}/comments`).then(r=>r.json()).then(list=>{
+        let avg = list.length? (list.reduce((a,b)=>a+b.rating,0)/list.length).toFixed(1):'-';
+        document.getElementById('rating-avg-'+id).innerHTML = `⭐ <b style="color:#800080">${avg}</b> (${list.length})`;
+        let html = list.map(c=>`<div class="comment-item">
+          <div class="comment-nick">${escapeHtml(c.user)}</div>
+          <div class="comment-rating">${'⭐'.repeat(c.rating)}</div>
+          <div class="comment-msg">${escapeHtml(c.message)}</div>
+        </div>`).join('');
+        if(list.length==0) html = "<i class='muted'>No comments yet.</i>";
+        document.getElementById('comments-'+id).innerHTML = html;
+      });
+    }
+    function commentFormHtml(id){
+      return `<form class="comment-form" onsubmit="addComment(event,'${id}')">
+        <label>Add Comment & Rate:
+          <select required name="rating">
+            <option value="" selected disabled>Rate</option>
+            <option value="1">⭐ 1</option>
+            <option value="2">⭐ 2</option>
+            <option value="3">⭐ 3</option>
+            <option value="4">⭐ 4</option>
+            <option value="5">⭐ 5</option>
+          </select>
+        </label>
+        <input maxlength="80" name="message" required placeholder="Comment...">
+        <button type="submit" class="action-btn">Submit</button>
+      </form>`;
+    }
+    function addComment(ev,id){
+      ev.preventDefault();
+      let form = ev.target;
+      let rating = parseInt(form.rating.value);
+      let message = form.message.value.trim();
+      if(!message||!rating)return;
+      fetch(`/api/servers/${id}/comment`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rating,message})
+      }).then(r=>r.json()).then(res=>{
+        if(res.ok){form.reset();getComments(id);}
+      });
+    }
+    function afterServerGridRendered(){
+      document.querySelectorAll(".server-card").forEach(card=>{
+        let id = card.querySelector('.comment-section').id.split('-')[1];
+        getComments(id);
+      });
+    }
+    // ======= ADD SERVER ========== 
+    function refreshAddServerList(){
+      let sel=document.getElementById("add-server-select");
+      if(!isLoggedIn()){sel.innerHTML='<option disabled>Login to use</option>';sel.value='';return;}
+      fetch("/api/auth/me").then(r=>r.json()).then(data=>{
+        let guilds=data.guilds||[];
+        let html='<option disabled selected value="">Pick Server</option>';
+        html += guilds.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+        sel.innerHTML=html;
+      });
+    }
+    function requestAddServer(ev){
+      ev.preventDefault();
+      let serverId=document.getElementById("add-server-select").value;
+      let serverName=document.getElementById("add-server-select").selectedOptions[0].textContent;
+      let invite=document.getElementById("add-server-invite").value.trim();
+      if(!serverId||!serverName||!invite)return;
+      fetch("/api/servers/request",{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({serverId,serverName,invite})
+      }).then(r=>r.json()).then(res=>{
+        let el=document.getElementById("add-server-status");
+        if(res.ok){el.innerHTML="✅ Request sent! Wait for admin approval.";document.getElementById("add-server-form").reset();}
+        else el.innerHTML="❌ "+(res.error||"Failed");
+      });
+    }
+
+    // ======= ADMIN PAGE ========== 
+    function fetchAdmin(){
+      if(!isAdmin())return document.getElementById("admin-request-list").innerHTML="Unauthorized";
+      fetch("/api/requests").then(r=>r.json()).then(reqs=>{
+        let html=reqs.length? reqs.map(renderAdminReq).join('') : "<i>No pending requests</i>";
+        document.getElementById("admin-request-list").innerHTML=html;
+      });
+      fetch("/api/admin/sessions").then(r=>r.json()).then(lst=>{
+        let html=lst.map(u=>`
+          <div class="admin-session">
+            <b>${escapeHtml(u.userTag)}</b> <span style="color:#888;">ID:</span> ${u.userId}
+            <button class="action-btn" onclick="adminForceLogout('${u.userId}')">Force Logout</button>
+          </div>`).join('');
+        document.getElementById("admin-session-list").innerHTML = html || "<i>No active users</i>";
+      });
+    }
+    function renderAdminReq(r){
+      return `<div class="admin-req">
+        <b style="color:#800080">${escapeHtml(r.serverName)}</b> from ${escapeHtml(r.requestBy)}
+        <br><a href="${r.invite}" class="join-btn" target="_blank">Invite</a>
+        <br>
+        <button onclick="approveReq('${r.serverId}')" class="action-btn admin">Approve</button>
+        <button onclick="rejectReq('${r.serverId}')" class="action-btn admin danger">Reject</button>
+      </div>`;
+    }
+    function approveReq(id){ fetch(`/api/requests/${id}/approve`,{method:'POST'}).then(()=>fetchAdmin()); }
+    function rejectReq(id){ fetch(`/api/requests/${id}/reject`,{method:'POST'}).then(()=>fetchAdmin()); }
+
+    // ======= FEEDBACK & SUPPORT =======
+    function sendFeedback(ev) {
+      ev.preventDefault();
+      let user=document.getElementById("fb-user").value, type=document.getElementById("fb-type").value, msg=document.getElementById("fb-message").value;
+      let status = document.getElementById("feedback-status");
+      if(!user||!type||!msg){status.textContent="Form incomplete.";return;}
+      fetch("/api/feedback",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({name:user,type,message:msg})
+      }).then(r=>r.json()).then(res=>{
+        if(res.ok){status.innerHTML="✅ Sent!";document.getElementById("feedback-form").reset();}
+        else status.innerHTML="❌ Failed";
+      });
+    }
+  </script>
+</body>
+</html>

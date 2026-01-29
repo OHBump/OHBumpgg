@@ -1,0 +1,74 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #fff7ff;
+  margin: 0; padding: 0; color: #800080;
+  min-height: 100vh;
+}
+header {
+  background: #fff;
+  border-bottom: 2px solid #f3e3fa;
+}
+.header-row {
+  display:flex;align-items:center;justify-content:space-between;padding:14px 15px 8px 15px;
+}
+.navbar-title { font-size:2.2rem;font-weight:900;letter-spacing:2px;color: #800080;margin:0;}
+#menu-btn { font-size: 2.2rem; background:none; border:none; color:#800080; cursor:pointer;display:none;}
+.nav-tabs {
+  display:flex;flex-wrap:wrap;justify-content:center;gap:10px;background: #fbefff;
+  border-radius:12px 12px 0 0;padding:11px 0 4px 0;
+}
+.nav-tabs button {
+  background: #fff7ff;color: #800080; border:none;padding: 11px 22px;font-size:1.1rem;cursor:pointer;border-radius:18px 18px 0 0;transition: background 0.18s, color 0.18s;font-weight:700;outline:none;
+}
+.nav-tabs button.active, .nav-tabs button:hover {
+  background: #800080; color: #fff;
+}
+#user-info {margin-left:18px;color: #800080; font-weight:600;}
+main {max-width:860px;background: rgba(255,255,255,0.93);margin: 0 auto;padding:2.7rem 1.5rem 2.3rem 1.5rem;border-radius:18px;box-shadow: 0 6px 42px #d285ab21;}
+.page-title { font-size:2rem;font-weight:800;color:#800080;margin-bottom:12px;letter-spacing:2px;}
+.footer-main{background:#fbefff;border-top:2px solid #e2cfff;padding:22px 7vw 13px 6vw;display:flex;align-items:center;justify-content:space-between;}
+.brand-footer{font-size:1.1em;font-weight:900;letter-spacing:1.1px;color:#800080;}
+.footer-right a{color:#800080;text-decoration:none;margin:0 6px;font-weight:600;}
+.footer-right a:hover{text-decoration:underline;color:#a390dc;}
+.loading-text{color:#b096d1;padding:8px;}
+.server-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:29px;}
+.server-card{background: #f6eeff;border-radius:16px;box-shadow: 0 8px 32px #9f30d130;padding:21px 18px 17px;position:relative;min-height:210px;margin-bottom:22px;}
+.server-header {display:flex;align-items:center;justify-content:space-between;}
+.server-name {font-size:1.27rem;font-weight:900;letter-spacing:1.1px;color:#800080;}
+.server-badge{background:#8a51cc;color:#fff;padding:3px 16px;border-radius:11px;font-size:1.1em;margin-left:8px;font-weight:700;}
+.server-by {font-size:0.99em;color:#800080;margin-bottom:6px;}
+.join-btn{background:linear-gradient(90deg,#800080,#c88cff);color:#fff;font-weight:700;border:none;border-radius:15px;padding:6px 19px;text-decoration:none;display:inline-block;margin:11px 0;transition:background .2s;}
+.join-btn:hover{background:linear-gradient(90deg,#935ec3,#d35ae7);}
+.rate-row{margin:7px 0;color:#800080;}
+.rating-avg{font-weight:800;color:#800080;margin-right:6px;}
+.comment-section{background:#efeaff;padding:13px 7px;border-radius:10px;margin-top:8px;min-height:35px;}
+.comments-loading{color:#b096d1;}
+.comment-form{margin:6px 0 0 0;display:flex;align-items:center;gap:8px;}
+.comment-form select, .comment-form input{
+  padding:3.5px 9px;font-size:1em;border:1px solid #cd9cf2;border-radius:6px;
+}
+.comment-form button.action-btn{margin-left:6px;}
+.comment-item{padding:5px 0 4px 0;}
+.comment-nick{font-weight:700;font-size:1.02em;color:#800080;letter-spacing:0.7px;}
+.comment-msg{color:#800080;}
+.comment-rating{color:#a75eee;font-size:1em;}
+.muted{color:#cebecf;}
+#tab-addserver label{color:#800080;font-weight:600;}
+#tab-addserver select{padding:7px 12px;border-radius:7px;background:#fff;}
+#tab-addserver input[type="url"]{padding:7px 12px;border-radius:7px;border:1.2px solid #cd9cf2;}
+.action-btn{background:linear-gradient(90deg,#800080,#c88cff);border:none;color:#fff;border-radius:12px;font-weight:700;margin:7px 7px 7px 0;padding:7.5px 22px;cursor:pointer;transition: background 0.23s;}
+.action-btn:hover{background:linear-gradient(90deg,#a461d7,#cd3df9);}
+.form-status{color:#800080;margin-top:10px;font-weight:600;}
+.admin-req { background:#efeaff;border-radius:11px;margin:12px 0 18px 0;padding:13px 20px 13px 13px;box-shadow:0 2.5px 12px #a17dca40;font-size:1.08em;border-left:5px solid #8a51cc;}
+.admin-req .action-btn{margin-right:10px;}
+.admin-req .action-btn.danger{background:linear-gradient(90deg,#bb2c9a,#d35ae7);}
+.admin-session {background:#fff0fe;margin:0 0 8px 0;padding:6px 16px;border-radius:7px;display:flex;align-items:center;gap:17px;color:#800080;}
+@media (max-width:700px){
+  main {padding:1rem;}
+  .server-grid{grid-template-columns:1fr;}
+  .navbar-title{font-size:1.5rem;}
+  #menu-btn {display:block;}
+  .nav-tabs{display:none;flex-direction:column;background:rgba(245,225,255,0.99);position:absolute;right:7px;top:63px;z-index:9;box-shadow:0 6px 24px #a37fba25;}
+  .nav-tabs.show{display:flex;}
+  .nav-tabs button{margin:0 8px 10px 8px !important;border-radius:13px!important;width:85%;text-align:left;}
+}
