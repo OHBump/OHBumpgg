@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OHBUMP - Discord Bot</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header>
+    <div class="header-row">
+      <div class="logo-wrap">
+        <img src="images/logo.png" alt="OHBUMP Logo" class="logo">
+      </div>
+      <img src="images/banner.png" alt="OHBUMP Banner" class="banner">
+      <button id="menu-btn" onclick="toggleMenu()">⋮</button>
+    </div>
+    <nav id="main-nav" class="nav-tabs">
+      <button onclick="showTab('home')" id="btn-home" class="active">Home</button>
+      <button onclick="showTab('discover')" id="btn-discover">Server Discovery</button>
+      <button onclick="showTab('status')" id="btn-status">Bot Status</button>
+      <button onclick="showTab('feedback')" id="btn-feedback">Feedback</button>
+      <button onclick="showTab('tos')" id="btn-tos">TOS</button>
+      <button onclick="showTab('privacy')" id="btn-privacy">Privacy</button>
+      <button class="login-btn" id="btn-login" onclick="window.location='/auth/discord'">Login with Discord</button>
+      <span id="user-info" style="display:none;">Logged in as <span id="username">User#0000</span> <button onclick="logout()">Logout</button></span>
+    </nav>
+  </header>
+  <main>
+    <!-- HOME -->
+    <section id="tab-home">
+      <h1>Welcome to OHBUMP!</h1>
+      <p>OHBUMP is a Discord bot to keep your community active and growing 🎉</p>
+      <a href="https://discord.com/oauth2/authorize?client_id=1449058454957330616&scope=bot" class="invite-btn">Invite OHBUMP to Your Server</a>
+      <section class="features">
+        <h2>Top Features:</h2>
+        <ul>
+          <li>🔔 Auto Bump server to stay visible</li>
+          <li>📝 Custom bump messages</li>
+          <li>⚡ Easy integration, fast response</li>
+          <li>💬 Multi-language support</li>
+        </ul>
+      </section>
+    </section>
+    <!-- STATUS -->
+    <section id="tab-status" style="display:none">
+      <h1>Bot Status</h1>
+      <p id="bot-status">Checking Bot status...</p>
+    </section>
+    <!-- SERVER DISCOVERY -->
+    <section id="tab-discover" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+        <h1>Server Discovery</h1>
+        <button onclick="showAddServer()" class="action-btn" id="add-server-btn" title="Add Server (login required)">+ Add Server</button>
+      </div>
+      <div id="server-list"></div>
+      <div id="add-server-form" style="display:none;">
+        <h2>Add Your Server</h2>
+        <form onsubmit="submitServer(event)">
+          <input type="text" id="serverName" required maxlength="64" placeholder="Server Name"/>
+          <input type="url" id="serverInvite" required placeholder="Discord Invite Link"/>
+          <div class="admin-badge-list" id="add-badge-list"></div>
+          <button type="submit" class="action-btn">Submit</button>
+          <button type="button" onclick="hideAddServer()" class="action-btn cancel">Cancel</button>
+        </form>
+      </div>
+    </section>
+    <!-- FEEDBACK -->
+    <section id="tab-feedback" style="display:none">
+      <h1>Feedback & Comments</h1>
+      <form id="feedback-form" onsubmit="sendFeedback(event)">
+        <input id="fb-name" type="text" maxlength="32" placeholder="Your Name or Discord Tag" required>
+        <textarea id="fb-message" maxlength="280" rows="4" placeholder="Your feedback or comment..." required></textarea>
+        <button class="action-btn" type="submit">Send</button>
+        <span id="feedback-status"></span>
+      </form>
+    </section>
+    <!-- TOS -->
+    <section id="tab-tos" style="display:none">
+      <h1>Terms of Service</h1>
+      <p>
+        By using OHBUMP, you agree not to use the bot for any illegal activities or actions violating Discord’s Terms of Service.<br>
+        OHBUMP may refuse service to anyone abusing the bot or violating accepted standards.<br>
+        Terms may change; updates will be posted on this website.
+      </p>
+    </section>
+    <!-- PRIVACY -->
+    <section id="tab-privacy" style="display:none">
+      <h1>Privacy Policy</h1>
+      <p>
+        OHBUMP does not store any personal data except what’s needed for bot function (e.g., server IDs, channel IDs).<br>
+        We do not share data with third parties.<br>
+        By inviting OHBUMP, you accept this policy. Policy changes will be posted here.
+      </p>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2026 OHBUMP Bot | Website by OHBump</p>
+  </footer>
+  <script>
+    // NAV & MENU
+    function toggleMenu() {
+      document.getElementById('main-nav').classList.toggle('show');
+    }
+    window.onclick = function(e) {
+      if(!e.target.matches('#menu-btn')) {
+        document.getElementById('main-nav').classList.remove('show');
+      }
+    }
+
+    // GLOBAL BADGE LIST (isi oleh backend saat login)
+    let BADGE_LIST = [];
+    let user = null, userRole = '';
+    function setBadgeList(list) {
+      BADGE_LIST = list || [];
+      let html = BADGE_LIST.map(b=>
+        `<label><input type="checkbox" name="badge" value="${b}"/> ${b}</label>`
+      ).join(' ');
+      document.getElementById('add-badge-list').innerHTML = html;
+    }
+
+    // TAB SWITCH
+    function showTab(tab) {
+      let tabs = ['home','discover','status','feedback','tos','privacy'];
+      tabs.forEach(t => {
+        document.getElementById('tab-'+t).style.display = t===tab ? '' : 'none';
+        document.getElementById('btn-'+t).classList[t===tab?'add':'remove']('active');
+      });
+      if(tab==='status') fetchBotStatus();
+      if(tab==='discover') fetchServers();
+      document.getElementById('main-nav').classList.remove('show'); // close menu on switch
+    }
+
+    // BOT STATUS (dummy)
+    function fetchBotStatus() {
+      setTimeout(function() {
+        document.getElementById("bot-status").innerHTML = "<span style='color:green;font-weight:bold;'>🟢 Online</span> — Everything is running smoothly!";
+      }, 800);
+    }
+
+    // SERVER DISCOVERY 
+    function fetchServers() {
+      fetch('/api/servers')
+        .then(r=>r.json())
+        .then(srvList => renderServers(srvList));
+    }
+    function renderServers(list) {
+      let html = list.map((srv,i) => `
+        <div class="server-card${srv.banned?' banned':''}">
+          <span class="srv-name">${srv.name}</span>
+          <div class="srv-badges">${(srv.badges||[]).map(makeBadge).join(' ')}</div>
+          ${(srv.banned?'<div class="badge banned-badge">BANNED</div>':'')}
+          ${(srv.nsfw?'<div class="badge nsfw-badge">NSFW</div>':'')}
+          <div style="margin:10px 0;">
+            <a href="${srv.invite}" class="srv-invite" target="_blank">Join</a>
+            <button class="vote-btn" onclick="voteServer(${i})" ${!isLoggedIn() ? "disabled title='Login to vote'" : ""}>⬆️ ${srv.votes||0} Vote</button>
+          </div>
+          ${isAdminOrStaff()?adminPanel(i,srv):''}
+        </div>
+      `).join('');
+      document.getElementById('server-list').innerHTML = html || '<i>No servers listed yet. Be the first to add!</i>';
+      document.getElementById('add-server-btn').style.display = isLoggedIn() ? '' : 'none';
+    }
+    function makeBadge(b) {
+      const colors = {
+        Verified:"#6b47dc", Popular:"#ca3ded", Active:"#f662a3",
+        NSFW:"#af42ec", Pro:"#4b8cff", Premium:"#ffe53f", 
+        Style:"#43e489", Fun:"#f2a54b", Anime:"#f653ca",
+        Bot:"#a8eaff", Gaming:"#e884ff", New:"#4bd6f6",
+        Official:"#3ef2c7", Indo:"#ffb800", "24/7":"#0de1c2"
+      };
+      return `<span class="badge" style="background:${colors[b]||'#e61d92'}">${b}</span>`;
+    }
+    function voteServer(idx) {
+      if(!isLoggedIn()) return;
+      fetch('/api/servers/vote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idx})})
+        .then(()=>fetchServers());
+    }
+    function showAddServer() {
+      document.getElementById('add-server-form').style.display = '';
+    }
+    function hideAddServer() {
+      document.getElementById('add-server-form').style.display = 'none';
+    }
+    function submitServer(e){
+      e.preventDefault();
+      if(!isLoggedIn()) return;
+      const name = document.getElementById('serverName').value.trim();
+      const invite = document.getElementById('serverInvite').value.trim();
+      const badges = Array.from(document.getElementById('add-badge-list').querySelectorAll('input[name="badge"]:checked')).map(x=>x.value);
+      fetch('/api/servers',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name,invite,badges})
+      })
+      .then(r=>r.json()).then(r=>{
+        if(r.ok) {
+          fetchServers();
+          hideAddServer();
+        }
+      });
+    }
+
+    // LOGIN STATUS & ADMIN/STAF ROLES
+    function updateLogin() {
+      fetch("/api/auth/me").then(r=>r.json()).then(data=>{
+        user = data.loggedIn ? data.user : null;
+        userRole = data.role||'';
+        setBadgeList(data.BADGE_LIST||[]);
+        document.getElementById("btn-login").style.display = data.loggedIn ? "none" : "";
+        document.getElementById("user-info").style.display = data.loggedIn ? "" : "none";
+        if(data.loggedIn){
+          document.getElementById("username").innerText = data.user.username + "#" + data.user.discriminator;
+        }
+        fetchServers();
+      });
+    }
+    function logout(){
+      fetch("/api/auth/logout", {method:"POST"}).then(()=>{ updateLogin(); });
+    }
+    function isLoggedIn() { return !!user; }
+    function isAdminOrStaff() { return userRole==='admin'||userRole==='staff'; }
+
+    // ADMIN PANEL: BADGE, BAN, DELETE, NSFW
+    function adminPanel(idx,srv) {
+      let badgeChecks = BADGE_LIST.map(b=>
+        `<label><input type='checkbox' value='${b}' onclick="updateServerBadge(${idx},'${b}',this.checked)"${(srv.badges||[]).includes(b)?' checked':''}><span>${b}</span></label>`
+      ).join(' ');
+      return `
+      <div class="admin-panel">
+        <div><b>Badges:</b> <span class="admin-badge-list">${badgeChecks}</span></div>
+        <button onclick="deleteServer(${idx})" class="cpanel-btn danger">Delete</button>
+        <button onclick="banServer(${idx})" class="cpanel-btn">Ban</button>
+        <button onclick="setNSFWServer(${idx},true)" class="cpanel-btn">NSFW ON</button>
+        <button onclick="setNSFWServer(${idx},false)" class="cpanel-btn">NSFW OFF</button>
+      </div>
+      `;
+    }
+    function updateServerBadge(idx,badge,checked) {
+      // Kirim list badge baru (ambil semua yg checked, kirim ke backend)
+      let card = document.querySelectorAll('.server-card')[idx];
+      let bx = Array.from(card.querySelectorAll('.admin-panel input[type=checkbox]:checked')).map(elem=>elem.value);
+      fetch('/api/servers/'+idx+'/badge',{
+        method:"POST",headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({badges: bx})
+      }).then(()=>fetchServers());
+    }
+    function deleteServer(idx) {
+      if(confirm("Delete this server?")) fetch("/api/servers/"+idx+"/delete",{method:"POST"}).then(()=>fetchServers());
+    }
+    function banServer(idx) {
+      if(confirm("Ban this server?")) fetch("/api/servers/"+idx+"/ban",{method:"POST"}).then(()=>fetchServers());
+    }
+    function setNSFWServer(idx, mode) {
+      fetch('/api/servers/'+idx+'/nsfw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nsfw:mode})}).then(()=>fetchServers());
+    }
+
+    // FEEDBACK FORM
+    function sendFeedback(e){
+      e.preventDefault();
+      let name = document.getElementById('fb-name').value.trim();
+      let msg = document.getElementById('fb-message').value.trim();
+      if(!name || !msg) return;
+      document.getElementById('feedback-status').innerHTML = 'Sending...';
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({name, message: msg})
+      })
+        .then(r=>r.json())
+        .then(res=>{
+          if(res.ok) {
+            document.getElementById('feedback-status').innerHTML = "✅ Sent!";
+            document.getElementById('feedback-form').reset();
+          } else {
+            document.getElementById('feedback-status').innerHTML = "❌ Failed to send.";
+          }
+        }).catch(()=>{
+          document.getElementById('feedback-status').innerHTML = "❌ Failed to send.";
+        });
+    }
+
+    // INIT
+    updateLogin();
+    showTab('home');
+  </script>
+</body>
+</html>

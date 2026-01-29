@@ -1,0 +1,290 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #fff8fc 0%, #fa8ae3 60%, #9664f5 100%);
+  margin: 0;
+  padding: 0;
+  color: #4a1860;
+  min-height: 100vh;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  padding: 15px 0;
+}
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  margin-left: 16px;
+  flex-shrink: 0;
+}
+.logo {
+  width: 54px;
+  height: 54px;
+  border-radius: 15%;
+  object-fit: contain;
+  background: #fff0ff;
+  box-shadow: 0 2px 7px #d285ab33;
+  margin: 0 18px 0 0;
+  transition: box-shadow .2s;
+}
+.banner {
+  width: 70%;
+  max-width: 600px;
+  margin: 0 0 0 12px;
+  border-radius: 18px;
+  box-shadow: 0 7px 24px rgba(172, 22, 202, 0.18);
+}
+#menu-btn {
+  position: absolute;
+  top: 4px; right: 24px;
+  font-size: 2.1rem;
+  background: none;
+  border: none;
+  color: #af13b2;
+  cursor: pointer;
+  display: none;
+}
+
+.nav-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.53);
+  border-radius: 12px 12px 0 0;
+  padding: 8px 0 3px 0;
+  margin-left: 0;
+}
+
+.nav-tabs button {
+  background: #fff5fd;
+  color: #c53dda;
+  border: none;
+  padding: 11px 22px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 18px 18px 0 0;
+  transition: background 0.18s, color 0.18s;
+  font-weight: 600;
+  outline: none;
+}
+.nav-tabs button.active,
+.nav-tabs button:hover {
+  background: #be5def;
+  color: #fff;
+}
+.login-btn {
+  margin-left:20px;
+  background: linear-gradient(90deg, #e25ec9, #9657fb);
+  color: #fff !important;
+  border-radius: 22px !important;
+  padding:10px 23px !important;
+  font-weight:bold;
+}
+#user-info {
+  margin-left:19px;
+  color: #7d27b7;
+  font-weight:500;
+}
+
+main {
+  max-width: 730px;
+  background: rgba(255,255,255,0.83);
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: 0 6px 36px rgba(135, 52, 172, 0.11);
+}
+
+h1 {
+  font-size: 2.1rem;
+  margin-bottom: 14px;
+  color: #a945c7;
+  text-shadow: 1px 1px 0 #fff5fd;
+}
+.features h2 { color: #b74ce1; }
+
+.invite-btn {
+  display: inline-block;
+  background: linear-gradient(90deg, #cf2bf0, #ff74bc);
+  color: #fff;
+  margin: 18px 0 14px;
+  padding: 15px 35px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: bold;
+  box-shadow: 0 3px 8px rgba(230, 97, 190, 0.13);
+  transition: background 0.22s;
+}
+.invite-btn:hover {background:linear-gradient(90deg,#a661d3,#de58f1);}
+
+ul {
+  line-height: 2;
+  font-size: 1.11rem;
+}
+section { animation: fadeIn 0.3s; }
+
+.server-card {
+  background: #fff2ff;
+  border-radius: 16px;
+  box-shadow: 0 3px 20px #e881e652;
+  padding: 18px;
+  margin: 19px 0 17px 0;
+  position:relative;
+}
+.srv-name { font-weight: 600; font-size: 1.19rem; color: #922adf; }
+.srv-badges { margin: 6px 0;}
+.badge {
+  display: inline-block;
+  border-radius: 10px;
+  font-size: .95em;
+  padding: 2.5px 13px;
+  margin-right:5px;
+  margin-bottom:2px;
+  color:#fff;
+  font-weight:600;
+  vertical-align:middle;
+}
+.badge.nsfw-badge {background:#af42ec;}
+.badge.banned-badge {background:#ff4955;}
+.srv-invite {
+  background:#fff;
+  border:1.5px solid #cf2bf0;
+  color: #cf2bf0;
+  border-radius: 12px;
+  font-weight:600;
+  padding: 5px 16px;
+  text-decoration:none;
+  transition: background 0.22s;
+  margin-right:12px;
+}
+.srv-invite:hover {
+  background: #e881e6;
+  color:#fff;
+}
+.vote-btn {
+  background: #9657fb;
+  border:none;
+  color:#fff;
+  border-radius: 13px;
+  font-weight:600;
+  padding: 5px 13px;
+  cursor:pointer;
+  transition: background 0.22s;
+}
+.vote-btn:disabled { background: #c99dea; opacity:0.65; cursor:not-allowed;}
+.vote-btn:hover:not(:disabled) { background:#d24be1;}
+
+#add-server-form {
+  margin-top:18px;
+  background: #f6dbff;
+  border-radius: 9px;
+  padding:19px;
+}
+#add-server-form input[type="text"], #add-server-form input[type="url"] {
+  border:1px solid #c19fd1;
+  border-radius:6px;
+  font-size:1em;
+  padding:6px;
+  margin:7px 0;
+  background:#fff;
+  width:75%;
+}
+#add-server-form label { margin-right:18px;}
+#add-server-form .action-btn.cancel {
+  background: #ffeeee;
+  color: #c3777e;
+}
+.action-btn {
+  background:linear-gradient(90deg,#e25ec9,#9657fb);
+  border:none;
+  color:#fff;
+  border-radius:11px;
+  font-weight:600;
+  margin:7px 8px 7px 0;
+  padding:7px 19px;
+  cursor:pointer;
+  transition: background 0.22s;
+}
+.action-btn:hover {
+  background:linear-gradient(90deg,#b23ec7,#ef5fc3);
+}
+
+#feedback-form {
+  margin:38px 0 8px;
+  background: #f7fafd;
+  padding:28px 19px 19px;
+  border-radius: 13px;
+  box-shadow: 0 5px 6px #cf2bf031;
+  display:flex; flex-direction:column;
+}
+#feedback-form input,#feedback-form textarea{
+  font-size:1em;
+  padding:8px;
+  margin-bottom:15px;
+  border:1.3px solid #c999d9;
+  border-radius:8px;
+  background: #fff;
+  width: 98%;
+  transition:border 0.18s;
+}
+#feedback-form input:focus, #feedback-form textarea:focus {
+  outline:none;
+  border-color:#d97ada;
+}
+#feedback-form button { align-self:flex-start; }
+
+#feedback-status { margin-left:20px; font-size:1.02em;vertical-align:middle;}
+
+.admin-panel {
+  background:#fff8eb;margin:11px 0 2px 0;padding:9px 7px;border-radius:8px;
+  box-shadow:0 2px 9px #a47a1240;display:block;
+}
+.cpanel-btn {background:#e574fe;color:#fff;border:none;padding:3px 15px;border-radius:6px;margin:2px;}
+.cpanel-btn.danger {background:#fd5151;}
+
+.server-card.banned {opacity:0.60;filter:grayscale(0.5);}
+.admin-badge-list label {
+  display:inline-block;
+  margin-right:8px;
+  margin-bottom:3px;
+  font-size:.98em;
+}
+@keyframes fadeIn {
+  from { opacity: 0;}
+  to { opacity: 1;}
+}
+
+@media (max-width:850px) {
+  main {max-width:99vw;padding:1.1rem;}
+  .banner {width:98%;}
+}
+@media (max-width:700px) {
+  .header-row, main { flex-direction:column;}
+  .logo { width:38px; height:38px; margin-right:8px;}
+  .logo-wrap { margin-left: 6px;}
+  .banner { width:68vw; min-width:110px; max-width:92vw; margin:0; }
+  #menu-btn { display:block; position:absolute; right:16px; top:8px;}
+  .nav-tabs {
+    display:none;
+    flex-direction:column;
+    background:rgba(255,255,255,0.97);
+    position:absolute;
+    right:6px; top:65px;
+    z-index:10;
+    box-shadow:0 6px 24px #d285ab29;
+    border-radius:8px;
+  }
+  .nav-tabs.show {
+    display:flex;
+  }
+  .nav-tabs button,.nav-tabs .login-btn {
+    margin:0 8px 9.5px 8px !important;
+    border-radius:13px!important;
+    width: 90%;
+    text-align:left;
+  }
+}
